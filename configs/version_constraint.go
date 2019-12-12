@@ -27,7 +27,17 @@ func decodeVersionConstraint(attr *hcl.Attribute) (VersionConstraint, hcl.Diagno
 	if diags.HasErrors() {
 		return ret, diags
 	}
+
+	// Initial support for terraform.required_providers provider source object
+	// only supports version attribute.
+	if val.Type().IsObjectType() {
+		if val.Type().HasAttribute("version") {
+			val = val.GetAttr("version")
+		}
+	}
+
 	var err error
+
 	val, err = convert.Convert(val, cty.String)
 	if err != nil {
 		diags = append(diags, &hcl.Diagnostic{
